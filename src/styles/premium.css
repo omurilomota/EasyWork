@@ -243,20 +243,36 @@ body::before {
 
 /* Estilo específico para o botão do menu */
 .menu-btn {
-  /* Pode herdar estilos base do icon-btn ou ter estilos próprios */
-  /* Ex: background: rgba(99, 102, 241, 0.2); */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 
 .menu-btn .icon-menu {
   font-size: 22px;
-  transition: var(--anim-bounce);
+  transition: color 0.4s ease;
 }
 
 .menu-btn:hover .icon-menu {
-  transform: rotate(90deg);
+  /* Inicia a animação */
+animation: oneSpin 0.6s ease-in-out forwards;
   color: var(--clr-primary-light);
 }
 
+/* Define a animação de rotação contínua */
+@keyframes oneSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 /* ===== SIDEBAR ===== */
 .app-sidebar {
   width: auto;
