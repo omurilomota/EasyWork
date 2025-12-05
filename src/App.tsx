@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/layout/Header';
+import AISuggestionsImported from './components/ai/AISuggestions';
 import Sidebar from './components/layout/Sidebar';
 import Footer from './components/layout/Footer';
 import './styles/premium.css';
-
+import { Task } from './types';
 // Importação direta dos arquivos que existem
 import TaskBoard from './components/tasks/TaskBoard';
 
@@ -20,6 +21,13 @@ interface Project {
   name: string;
   color: string;
   tasks: number;
+}
+
+interface Suggestion {
+  id: number;
+  text: string;
+  taskId?: number;
+  priority?: 'low' | 'medium' | 'high';
 }
 
 // Componentes de placeholder enquanto não resolvemos as importações
@@ -57,15 +65,17 @@ const AchievementSystemPlaceholder: React.FC<{ achievements: any[]; onAchievemen
       <div className="xp-text">1,250/2,000 XP</div>
     </div>
     <div className="achievements-grid">
-      {achievements.slice(0, 3).map((achievement, index) => (
-        <div key={achievement.id} className={`achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}`}>
+      {achievements.map(achievement => (
+        <div 
+          key={achievement.id} 
+          className={`achievement-item ${achievement.unlocked ? 'unlocked' : 'locked'}`}
+          onClick={() => onAchievementClick(achievement.id)}
+        >
           <div className="achievement-icon">{achievement.icon}</div>
-          <div className="achievement-info">
+          <div className="achievement-content">
             <h4>{achievement.title}</h4>
             <p>{achievement.description}</p>
-          </div>
-          <div className="achievement-status" onClick={() => onAchievementClick(achievement.id)}>
-            {achievement.unlocked ? '✅' : '🔒'}
+            <span className="achievement-points">+{achievement.points} XP</span>
           </div>
         </div>
       ))}
@@ -73,20 +83,44 @@ const AchievementSystemPlaceholder: React.FC<{ achievements: any[]; onAchievemen
   </div>
 );
 
-const AISuggestionsPlaceholder: React.FC = () => (
+const AISuggestionsPlaceholder: React.FC<{ tasks: Task[]; onAcceptSuggestion?: (suggestion: Suggestion) => void; onDismissSuggestion?: (id: number) => void }> = ({
+  tasks = [],
+  onAcceptSuggestion,
+  onDismissSuggestion
+}) => (
   <div className="ai-suggestions glass-effect">
     <div className="ai-header">
       <h3>🤖 Sugestões de IA</h3>
       <span className="ai-badge">INTELIGENTE</span>
     </div>
     <div className="suggestions-list">
-      <div className="suggestion-item priority-high">
-        <div className="suggestion-text">Agendar reunião de equipe para amanhã 10:00</div>
-        <div className="suggestion-actions">
-          <button className="action-btn accept">✓ Aceitar</button>
-          <button className="action-btn dismiss">✕ Ignorar</button>
+      {tasks.slice(0, 3).map(task => (
+        <div key={task.id} className="suggestion-item priority-high">
+          <div className="suggestion-text">{task.title}</div>
+          <div className="suggestion-actions">
+            <button
+              className="action-btn accept"
+              onClick={() =>
+                onAcceptSuggestion?.({
+                  id: task.id,
+                  text: task.description ?? task.title,
+                  taskId: task.id,
+                })
+              }
+            >
+              ✓ Aceitar
+            </button>
+            <button className="action-btn dismiss" onClick={() => onDismissSuggestion?.(task.id)}>
+              ✕ Ignorar
+            </button>
+          </div>
         </div>
-      </div>
+      ))}
+      {tasks.length === 0 && (
+        <div className="suggestion-item">
+          <div className="suggestion-text">Nenhuma sugestão por enquanto</div>
+        </div>
+      )}
     </div>
     <div className="ai-stats">
       <div className="stat">
@@ -105,11 +139,11 @@ const StatsOverviewPlaceholder: React.FC = () => (
   <div className="stats-grid">
     <div className="stat-card primary-gradient">
       <div className="stat-header">
-        <div className="stat-icon">🎯</div>
-        <span className="trend positive">+12%</span>
+        <div className="stat-icon">📊</div>
+        <span className="trend positive">+8%</span>
       </div>
-      <div className="stat-value">85%</div>
-      <div className="stat-label">Produtividade</div>
+      <div className="stat-value">92%</div>
+      <div className="stat-label">Taxa de Conclusão</div>
     </div>
     <div className="stat-card success-gradient">
       <div className="stat-header">
@@ -125,7 +159,7 @@ const StatsOverviewPlaceholder: React.FC = () => (
 // Tentar importar dinamicamente os componentes que podem estar em diferentes locais
 let FocusTimer = FocusTimerPlaceholder;
 let AchievementSystem = AchievementSystemPlaceholder;
-let AISuggestions = AISuggestionsPlaceholder;
+let AISuggestions = AISuggestionsImported ?? AISuggestionsPlaceholder;
 let StatsOverview = StatsOverviewPlaceholder;
 
 function App() {
@@ -150,6 +184,13 @@ function App() {
     { id: 3, name: 'Projeto Gamma', color: '#ec4899', tasks: 5 },
     { id: 4, name: 'Desenvolvimento Web', color: '#10b981', tasks: 3 },
     { id: 5, name: 'Marketing Digital', color: '#f59e0b', tasks: 7 },
+  ]);
+
+  // Exemplo simples de tarefas que o AISuggestions precisa
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: 1, title: 'Revisar PR', description: 'Revisar pull request #23', completed: false, projectId: 1, priority: 'high' },
+    { id: 2, title: 'Criar testes', description: 'Criar testes para o componente X', completed: false, projectId: 2, priority: 'medium' },
+    { id: 3, title: 'Planejar sprint', description: 'Definir backlog para a sprint', completed: false, projectId: 1, priority: 'low' },
   ]);
 
   useEffect(() => {
@@ -183,14 +224,40 @@ function App() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleMenuItemClick = (label: string) => {
-    setActiveMenuItem(label);
-    console.log(`Navegando para: ${label}`);
-    
-    // Fechar sidebar em mobile após selecionar um item
+  const handleMenuItemClick = (menuItem: string) => {
+    setActiveMenuItem(menuItem);
     if (isMobile) {
       setSidebarOpen(false);
     }
+  };
+
+  const handleTaskComplete = () => {
+    const randomChance = Math.random();
+    if (randomChance > 0.7) {
+      const lockedAchievements = achievements.filter(a => !a.unlocked);
+      if (lockedAchievements.length > 0) {
+        const randomIndex = Math.floor(Math.random() * lockedAchievements.length);
+        const achievementToUnlock = lockedAchievements[randomIndex];
+        
+        setAchievements(prev => prev.map(ach => 
+          ach.id === achievementToUnlock.id ? { ...ach, unlocked: true } : ach
+        ));
+        
+        alert(`🎉 Conquista desbloqueada: ${achievementToUnlock.title}`);
+      }
+    }
+  };
+
+  const handleAcceptSuggestion = (suggestion: Suggestion) => {
+    console.log('Sugestão aceita:', suggestion);
+    // Marcar a tarefa sugerida como concluída (se houver tarefa mapeada)
+    if (suggestion.taskId) {
+      setTasks(prev => prev.map(t => t.id === suggestion.taskId ? { ...t, completed: true } : t));
+    }
+  };
+
+  const handleDismissSuggestion = (id: number) => {
+    console.log('Sugestão ignorada, id:', id);
   };
 
   const handleProjectClick = (project: Project) => {
@@ -221,23 +288,6 @@ function App() {
     setAchievements(prev => prev.map(ach => 
       ach.id === achievementId ? { ...ach, unlocked: !ach.unlocked } : ach
     ));
-  };
-
-  const handleTaskComplete = () => {
-    const randomChance = Math.random();
-    if (randomChance > 0.7) {
-      const lockedAchievements = achievements.filter(a => !a.unlocked);
-      if (lockedAchievements.length > 0) {
-        const randomIndex = Math.floor(Math.random() * lockedAchievements.length);
-        const achievementToUnlock = lockedAchievements[randomIndex];
-        
-        setAchievements(prev => prev.map(ach => 
-          ach.id === achievementToUnlock.id ? { ...ach, unlocked: true } : ach
-        ));
-        
-        alert(`🎉 Conquista desbloqueada: ${achievementToUnlock.title}`);
-      }
-    }
   };
 
   const renderContent = () => {
@@ -296,7 +346,11 @@ function App() {
 
             <div className="content-grid">
               <TaskBoard onTaskComplete={handleTaskComplete} />
-              <AISuggestions />
+              <AISuggestions 
+                tasks={tasks}
+                onAcceptSuggestion={handleAcceptSuggestion}
+                onDismissSuggestion={handleDismissSuggestion}
+              />
             </div>
 
             <AchievementSystem 

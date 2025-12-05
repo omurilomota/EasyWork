@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "composite": true,  // Adicione esta linha
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2023",
     "lib": ["ES2023"],
@@ -12,7 +13,9 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    "emitDeclarationOnly": true,  // Alterado: emite apenas declarações
+    "declaration": true,         // Necessário para composite projects
+    "declarationMap": true,      // Opcional: gera source maps para declarações
 
     /* Linting */
     "strict": true,

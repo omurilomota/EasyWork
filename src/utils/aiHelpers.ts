@@ -1,3 +1,4 @@
+
 export class AIAssistant {
   static calculateProductivityScore(tasks: any[]): number {
     const completed = tasks.filter(t => t.completed).length;

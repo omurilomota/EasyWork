@@ -1,15 +1,8 @@
-export interface Task {
-  completed: boolean;
-  overdue: boolean;
-  completedAt?: string;
-  priority: 'high' | 'medium' | 'low';
-  title: string;
-}
+// src/lib/ai/aiHelpers.ts
+import { Task, HistoryItem } from '../..//components/types';
 
-export interface HistoryItem {
-  completedAt: string;
-  priority: 'high' | 'medium' | 'low';
-}
+
+
 
 export class AIAssistant {
   static calculateProductivityScore(tasks: Task[]): number {

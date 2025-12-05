@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-
-interface Task {
-  id: number;
-  title: string;
-  status: 'todo' | 'in-progress' | 'done';
-  priority: 'high' | 'medium' | 'low';
-  description?: string;
-}
+import { Task } from '../types'; // Importe o tipo
 
 interface TaskBoardProps {
   onTaskComplete?: () => void;
@@ -240,7 +233,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ onTaskComplete }) => {
               )}
               <div className="task-actions">
                 <button onClick={() => handleTaskStatusChange(task.id, 'in-progress')}>
-                  ↩️ Reabrir
+                  ↩️
                 </button>
                 <button onClick={() => handleDeleteTask(task.id)}>🗑️</button>
               </div>

@@ -9,13 +9,16 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "emitDeclarationOnly": true,
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "./src",
+    "composite": true,  // Adicione
+    "declaration": true,  // Adicione
+    "declarationMap": true,  // Adicione (opcional)
     "paths": {
       "@/*": ["./*"],
       "@components/*": ["components/*"],
@@ -27,6 +30,5 @@
       "@hooks/*": ["hooks/*"]
     }
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src"]
 }
